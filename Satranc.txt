@@ -1,0 +1,235 @@
+/*input 
+  - 8x8 satranç tahtası (her karede taş veya boş)
+  - Şimdiki oyuncu (beyaz/siyah)
+  - Arama derinliği 
+output
+  - Önerilen en iyi hamle (başlangıç ve varış konumu)
+ - Bu hamlenin değerlendirme puanı */
+
+// Tas tipleri ve puanları
+PIYON = 100
+AT = 320
+FİL = 330
+KALE = 500
+VEZİR = 900
+ŞAH = 20000
+// Taş tanımı
+Bir taşın:
+  - tipi 
+  - rengi
+  - değeri
+// Hamle tanımı
+Bir hamle:
+  - başlangıç x,y (0-7 arası)
+  - hedef x,y (0-7 arası)
+
+// Tahta oluştur
+tahta_oluştur():
+  tahta = 8x8'lik matris
+
+  // Beyaz taşlar
+   tahta[0][0] = kale(beyaz)
+  tahta[1][0] = at(beyaz)
+   tahta[2][0] = fil(beyaz)
+  tahta[3][0] = vezir(beyaz)
+   tahta[4][0] = şah(beyaz)
+  tahta[5][0] = fil(beyaz)
+  tahta[6][0] = at(beyaz)
+   tahta[7][0] = kale(beyaz)
+  for (i=0; i<8; i++)
+    tahta[i][1] = piyon(beyaz)
+
+  // Siyah taşlar
+  tahta[0][7] = kale(siyah)
+  tahta[1][7] = at(siyah)
+  / / ... diğer siyah taşlar
+  for (i=0; i<8; i++)
+    tahta[i][6] = piyon(siyah)
+  return tahta;
+
+// Hamle uygulama
+hamle_uygula(tahta, hamle):
+  yeni_tahta = tahta'nın kopyası
+  yeni_tahta[hamle.hedef_x][hamle.hedef_y] = yeni_tahta[hamle.baş_x][hamle.baş_y]
+  yeni_tahta[hamle.baş_x][hamle.baş_y] = boş
+  return yeni_tahta
+
+// Tüm taşlar için hamle üretme
+geçerli  hamleler(tahta, renk):
+  hamleler = boş liste
+  
+for (int x = 0; x <= 7; x++)
+for (int y = 0; y <= 7; y++)
+      if tahta[x][y] != boş ve tahta[x][y].renk == renk:
+
+
+        // Piyon hareket
+        if tahta[x][y].tip == PIYON:
+          yön = (renk == beyaz) ? -1 : 1
+          
+          // İleri hareket
+          if tahta[x][y+yön] == boş:
+            hamleler.ekle(hamle(x,y, x,y+yön))
+            
+            // Çift ilk hareket
+if (y == 1 ve renk == siyah) or (y == 6 ve renk == beyaz):
+              if tahta[x][y+2*yön] == boş:
+                hamleler.ekle(hamle(x,y, x,y+2*yön))
+          
+          // Çapraz al
+          for dx in [-1,1];
+            if 0 <= x+dx < 8:
+           if tahta[x+dx][y+yön] != boş ve tahta[x+dx][y+yön].renk != renk:
+            hamleler.ekle(hamle(x,y, x+dx,y+yön))
+        
+        // At hareket
+        else if tahta[x][y].tip == AT:
+          for (dx,dy) in [(2,1),(1,2),(-1,2),(-2,1),(-2,-1),(-1,-2),(1,-2),(2,-1)]:
+            new_x = x + dx
+            neu_y = y + dy
+            if 0 <= new_x < 8 ve 0 <= new_y < 8:
+   if tahta[new_x][new_y] == boş or tahta[new_x][new_y].renk != renk:
+                hamleler.ekle(hamle(x,y, new_x,new_y))
+        
+  // Fil hareket
+        else if tahta[x][y].tip == FİL:
+         for (dx,dy) in [(1,1),(1,-1),(-1,1),(-1,-1)]:
+for (int adim = 1; adim <= 7; adim++)
+               new_x = x + dx*adım
+                new_y = y + dy*adım
+              if new_x < 0 or new_x > 7 or new_y < 0 or new_y > 7:
+                break
+              if tahta[new_x][new_y] == boş:
+                hamleler.ekle(hamle(x,y, new_x,new_y))
+              else:
+                if tahta[new_x][new_y].renk != renk:
+                  hamleler.ekle(hamle(x,y, new_x,new_y))
+                break
+        
+        // Kale hareket
+        else if tahta[x][y].tip == KALE:
+          // Dikey-yatay hareket
+          for (dx,dy) in [(1,0),(0,1),(-1,0),(0,-1)]:
+            for adım from 1 to 7:
+              new_x = x + dx*adım
+              new_y = y + dy*adım
+     if new_x < 0 or new_x > 7 or new_y < 0 or new_y >7
+                break
+              if tahta[new_x][new_y] == boş:
+                hamleler.ekle(hamle(x,y, new_x,new_y))
+              else:
+                if tahta[new_x][new_y].renk != renk:
+               hamleler.ekle(hamle(x,y, new_x,new_y))
+                break
+        
+         // Vezir hareket(fil + kale)
+        else if tahta[x][y].tip == VEZİR:
+
+          
+// Tüm yönlerde hareket
+          for (dx,dy) in [(1,0),(0,1),(-1,0),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)]:
+            for (int adım = 1; adım <= 7; adım++)
+              new_x = x + dx*adım
+              neu_y = y + dy*adım
+              if new_x < 0 or new_x > 7 or new_y < 0 or new_y > 7:
+                break
+              if tahta[new_x][new_y] == boş:
+                hamleler.ekle(hamle(x,y, new_x,new_y))
+              else:
+                if tahta[new_x][new_y].renk != renk:
+                  hamleler.ekle(hamle(x,y, new_x,new_y))
+                break
+     
+        // Şah hareketleri
+        else if tahta[x][y].tip == ŞAH:
+          for (dx,dy) in [(1,0),(0,1),(-1,0),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)]:
+            new_x = x + dx
+            new_y = y + dy
+            if 0 <= new_x < 8 ve 0 <= new_y < 8:
+              if tahta[new_x][new_y] == boş or tahta[new_x][new_y].renk != renk:
+                hamleler.ekle(hamle(x,y, new_x,new_y))
+  return hamleler
+
+// Pozisyon degerlendirme
+pozisyon_değeri(tahta):
+  skor = 0
+  // Materyel değer
+  for x from 0 to 7:
+    for y from 0 to 7:
+      if tahta[x][y] != boş:
+        if tahta[x][y].renk == beyaz:
+          skor += tahta[x][y].değer
+        else:
+          skor -= tahta[x][y].değer
+  // Pozisyonel avantajlar
+  // BU KISIMA EKLEMELER YAPILABİLİR
+  return skor
+// Minimax algoritması
+minimax(tahta, derinlik, maksimize_ediyor):
+  if derinlik == 0:
+    return pozisyon_değeri(tahta)
+  
+  if maksimize_ediyor:
+    max_skor = -sonsuz
+    for hamle in geçerli_hamleler(tahta, beyaz):
+      yeni_tahta = hamle_uygula(tahta, hamle)
+      skor = minimax(yeni_tahta, derinlik-1, yanlış)
+      max_skor = maks(max_skor, skor)
+    return max_skor
+  else:
+    min_skor = +sonsuz
+    for hamle in geçerli_hamleler(tahta, siyah):
+      yeni_tahta = hamle_uygula(tahta, hamle)
+      skor = minimax(yeni_tahta, derinlik-1, doğru)
+      min_skor = min(min_skor, skor)
+    return min_skor
+
+
+// Alfa-beta budamalı arama
+alfa_beta(tahta, derinlik, alfa, beta, maksimize_ediyor):
+  if derinlik == 0:
+    return pozisyon_değeri(tahta)
+  
+  if maksimize_ediyor:
+    değer = -sonsuz
+    for hamle in geçerli_hamleler(tahta, beyaz):
+      yeni_tahta = hamle_uygula(tahta, hamle)
+      değer = maks(değer, alfa_beta(yeni_tahta, derinlik-1, alfa, beta, yanlış))
+      alfa = maks(alfa, değer)
+      if alfa >= beta:
+        break
+    return değer
+  else:
+    değer = +sonsuz
+    for hamle in geçerli_hamleler(tahta, siyah):
+      yeni_tahta = hamle_uygula(tahta, hamle)
+      değer = min(değer, alfa_beta(yeni_tahta, derinlik-1, alfa, beta, doğru))
+      beta = min(beta, değer)
+      if alfa >= beta:
+        break
+    return değer
+
+
+
+// En iyi hamleyi bulma
+en_iyi_hamle(tahta, derinlik):
+  hamleler = geçerli_hamleler(tahta, beyaz)
+  en_iyi = hiçbiri
+  en_yüksek_skor = -sonsuz
+  
+  for hamle in hamleler:
+    yeni_tahta = hamle_uygula(tahta, hamle)
+    skor = alfa_beta(yeni_tahta, derinlik-1, -sonsuz, +sonsuz, yanlış)
+    
+    if skor > en_yüksek_skor:
+      en_yüksek_skor = skor
+      en_iyi = hamle
+  return en_iyi
+/* örnek
+tahta = tahta_oluştur()
+derinlik = 3
+hamle = en_iyi_hamle(tahta, derinlik)
+
+Yazdır "Önerilen hamle:  " + hamle.baş_x + "," + hamle.baş_y + " -> " + 
+       hamle.hedef_x + "," + hamle.hedef_y + " (puan:  " + en_yüksek_skor + ")"*/
+ 
